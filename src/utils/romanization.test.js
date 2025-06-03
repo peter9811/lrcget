@@ -35,7 +35,7 @@ describe('romanizeJapanese', () => {
     expect(romanizeJapanese('')).toBe('');
   });
   it('should handle long vowel marks', () => {
-    expect(romanizeJapanese('ラーメン')).toBe('ra-men'); // Standard for katakana long vowel
+    expect(romanizeJapanese('ラーメン')).toBe('rāmen'); // Default Hepburn for 'ラーメン' (long vowel mark)
     expect(romanizeJapanese('とうきょう')).toBe('toukyou'); // Hiragana long vowel
   });
 });
