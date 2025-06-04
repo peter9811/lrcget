@@ -88,6 +88,7 @@ async fn set_config(
     try_embed_lyrics: bool,
     theme_mode: &str,
     lrclib_instance: &str,
+    romanization_style_simple: bool,
     app_state: State<'_, AppState>,
 ) -> Result<(), String> {
     let conn_guard = app_state.db.lock().unwrap();
@@ -98,6 +99,7 @@ async fn set_config(
         try_embed_lyrics,
         theme_mode,
         lrclib_instance,
+        romanization_style_simple,
         conn,
     )
     .map_err(|err| err.to_string())?;

@@ -44,4 +44,5 @@ pub struct PersistentConfig {
     pub try_embed_lyrics: bool,
     pub theme_mode: String,
     pub lrclib_instance: String,
+    pub romanization_style_simple: bool,
 }

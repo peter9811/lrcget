@@ -10,7 +10,7 @@ use rusqlite::{named_params, params, Connection};
 use std::fs;
 use tauri::{AppHandle, Manager};
 
-const CURRENT_DB_VERSION: u32 = 6;
+const CURRENT_DB_VERSION: u32 = 7;
 
 /// Initializes the database connection, creating the .sqlite file if needed, and upgrading the database
 /// if it's out of date.
@@ -187,6 +187,19 @@ pub fn upgrade_database_if_needed(
 
             tx.commit()?;
         }
+
+        if existing_version <= 6 {
+            println!("Migrate database version 7...");
+            let tx = db.transaction()?;
+
+            tx.pragma_update(None, "user_version", 7)?;
+
+            tx.execute_batch(indoc! {"
+            ALTER TABLE config_data ADD romanization_style_simple BOOLEAN DEFAULT 0;
+            "})?;
+
+            tx.commit()?;
+        }
     }
 
     Ok(())
@@ -234,7 +247,8 @@ pub fn get_config(db: &Connection) -> Result<PersistentConfig> {
         skip_tracks_with_plain_lyrics,
         try_embed_lyrics,
         theme_mode,
-        lrclib_instance
+        lrclib_instance,
+        romanization_style_simple
       FROM config_data
       LIMIT 1
     "})?;
@@ -245,6 +259,7 @@ pub fn get_config(db: &Connection) -> Result<PersistentConfig> {
             try_embed_lyrics: r.get("try_embed_lyrics")?,
             theme_mode: r.get("theme_mode")?,
             lrclib_instance: r.get("lrclib_instance")?,
+            romanization_style_simple: r.get("romanization_style_simple")?,
         })
     })?;
     Ok(row)
@@ -256,6 +271,7 @@ pub fn set_config(
     try_embed_lyrics: bool,
     theme_mode: &str,
     lrclib_instance: &str,
+    romanization_style_simple: bool,
     db: &Connection,
 ) -> Result<()> {
     let mut statement = db.prepare(indoc! {"
@@ -265,7 +281,8 @@ pub fn set_config(
         skip_tracks_with_plain_lyrics = ?,
         try_embed_lyrics = ?,
         theme_mode = ?,
-        lrclib_instance = ?
+        lrclib_instance = ?,
+        romanization_style_simple = ?
       WHERE 1
     "})?;
     statement.execute((
@@ -274,6 +291,7 @@ pub fn set_config(
         try_embed_lyrics,
         theme_mode,
         lrclib_instance,
+        romanization_style_simple,
     ))?;
     Ok(())
 }

@@ -80,6 +80,17 @@
           <label class="block mb-2 child-label" for="lrclib-instance">LRCLIB instance</label>
           <input id="lrclib-instance" type="text" v-model="editingLrclibInstance" placeholder="https://" class="input px-4 h-8">
         </div>
+
+        <div class="flex flex-col mt-4">
+          <label class="block mb-2 child-label">Romanization Style</label>
+          <CheckboxButton
+            v-model="editingRomanizationStyleSimple"
+            name="romanization-style-simple"
+            id="romanization-style-simple"
+          >
+            Use simple romanization (e.g., "ni hao" instead of "nǐ hǎo" for Chinese)
+          </CheckboxButton>
+        </div>
       </div>
 
       <div>
@@ -118,7 +129,7 @@ import { useGlobalState } from '../../composables/global-state'
 import RadioButton from '@/components/common/RadioButton.vue'
 import CheckboxButton from '@/components/common/CheckboxButton.vue'
 
-const { setThemeMode, setLrclibInstance } = useGlobalState()
+const { setThemeMode, setLrclibInstance, setRomanizationStyleSimple } = useGlobalState()
 
 const emit = defineEmits(['close', 'refreshLibrary', 'uninitializeLibrary'])
 
@@ -128,6 +139,7 @@ const skipTracksWithPlainLyrics = ref(false)
 const tryEmbedLyrics = ref(false)
 const editingThemeMode = ref('auto')
 const editingLrclibInstance = ref('')
+const editingRomanizationStyleSimple = ref(false)
 
 const save = async () => {
   await invoke('set_config', {
@@ -135,10 +147,12 @@ const save = async () => {
     skipTracksWithPlainLyrics: skipTracksWithPlainLyrics.value,
     tryEmbedLyrics: tryEmbedLyrics.value,
     themeMode: editingThemeMode.value,
-    lrclibInstance: editingLrclibInstance.value
+    lrclibInstance: editingLrclibInstance.value,
+    romanizationStyleSimple: editingRomanizationStyleSimple.value
   })
   setThemeMode(editingThemeMode.value)
   setLrclibInstance(editingLrclibInstance.value)
+  setRomanizationStyleSimple(editingRomanizationStyleSimple.value)
   emit('close')
 }
 
@@ -170,6 +184,7 @@ const beforeOpenHandler = async () => {
   tryEmbedLyrics.value = config.try_embed_lyrics
   editingThemeMode.value = config.theme_mode
   editingLrclibInstance.value = config.lrclib_instance
+  editingRomanizationStyleSimple.value = config.romanization_style_simple
 }
 
 watch(downloadLyricsFor, (newVal) => {
